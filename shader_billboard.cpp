@@ -23,6 +23,7 @@ using namespace DirectX;
 static ID3D11VertexShader* g_pVertexShader = nullptr;
 static ID3D11InputLayout*  g_pInputLayout  = nullptr;
 static ID3D11PixelShader*  g_pPixelShader  = nullptr;
+static ID3D11SamplerState* g_pClampSampler = nullptr;
 
 // VS: b0 world, b1 view, b2 projection, b6 uv
 static ID3D11Buffer* g_pVSConstantBufferWorld = nullptr;
@@ -129,6 +130,25 @@ bool ShaderBillboard_Initialize()
     // Sampler state is managed globally in sampler.cpp
     Sampler_SetFilterAnisotropic();
 
+    {
+        D3D11_SAMPLER_DESC sd{};
+        sd.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+        sd.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+        sd.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+        sd.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+        sd.MipLODBias = 0.0f;
+        sd.MaxAnisotropy = 1;
+        sd.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+        sd.MinLOD = 0.0f;
+        sd.MaxLOD = D3D11_FLOAT32_MAX;
+
+        if (FAILED(Direct3D_GetDevice()->CreateSamplerState(&sd, &g_pClampSampler))) {
+            hal::dout << "ShaderBillboard_Initialize(): CreateSamplerState failed" << std::endl;
+            return false;
+        }
+    }
+
+
     // Default values (avoid using uninitialized CBs)
     ShaderBillboard_SetWorldMatrix(XMMatrixIdentity());
     ShaderBillboard_SetViewMatrix(XMMatrixIdentity());
@@ -200,4 +220,6 @@ void ShaderBillboard_Begin()
     ctx->VSSetConstantBuffers(6, 1, &g_pVSConstantBufferUV);
 
     ctx->PSSetConstantBuffers(0, 1, &g_pPSConstantBufferColor);
+
+    ctx->PSSetSamplers(0, 1, &g_pClampSampler);
 }
