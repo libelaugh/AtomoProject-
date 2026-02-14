@@ -241,15 +241,36 @@ void Billboard_Draw(
     const XMFLOAT4& color,
     const XMFLOAT2& pivot)
 {
+    const unsigned int texW = Texture_Width(texId);
+    const unsigned int texH = Texture_Height(texId);
+    if (texId < 0 || texW == 0 || texH == 0)
+    {
+        // Skip invalid / not-loaded textures (avoid division by zero in UV calc)
+        return;
+    }
     // tex_cut: (x, y, w, h) in pixels
-    const float invW = 1.0f / (float)Texture_Width(texId);
-    const float invH = 1.0f / (float)Texture_Height(texId);
+    const float invW = 1.0f / (float)texW;
+    const float invH = 1.0f / (float)texH;
 
-    const float uvX = (float)tex_cut.x * invW;
-    const float uvY = (float)tex_cut.y * invH;
-    const float uvW = (float)tex_cut.z * invW;
-    const float uvH = (float)tex_cut.w * invH;
+    // Clamp cut rect into texture bounds and keep at least 1x1.
+    const unsigned int cutX = (tex_cut.x < texW) ? tex_cut.x : (texW - 1);
+    const unsigned int cutY = (tex_cut.y < texH) ? tex_cut.y : (texH - 1);
 
+    const unsigned int maxW = texW - cutX;
+    const unsigned int maxH = texH - cutY;
+    const unsigned int cutW = (tex_cut.z == 0) ? 1u : ((tex_cut.z < maxW) ? tex_cut.z : maxW);
+    const unsigned int cutH = (tex_cut.w == 0) ? 1u : ((tex_cut.w < maxH) ? tex_cut.w : maxH);
+
+    // Half-texel inset to reduce tile bleeding when sampling sprite sheets.
+    const float uvMinX = ((float)cutX + 0.5f) * invW;
+    const float uvMinY = ((float)cutY + 0.5f) * invH;
+    const float uvMaxX = ((float)cutX + (float)cutW - 0.5f) * invW;
+    const float uvMaxY = ((float)cutY + (float)cutH - 0.5f) * invH;
+
+    const float uvX = uvMinX;
+    const float uvY = uvMinY;
+    const float uvW = uvMaxX - uvMinX;
+    const float uvH = uvMaxY - uvMinY;
     Billboard_DrawInternal(
         texId,
         position,
