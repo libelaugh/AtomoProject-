@@ -179,6 +179,12 @@ static void Billboard_DrawInternal(
     const XMFLOAT4& color,
     const XMFLOAT2& pivot)
 {
+    if (texId < 0 || Texture_Width(texId) == 0 || Texture_Height(texId) == 0)
+    {
+        // Skip invalid / not-loaded textures
+        return;
+    }
+
     ShaderBillboard_SetUVParameter(uv);
     ShaderBillboard_SetColor(color);
     ShaderBillboard_Begin();
