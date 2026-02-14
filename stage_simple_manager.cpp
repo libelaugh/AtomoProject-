@@ -468,6 +468,10 @@ void StageSimpleManager_Draw()
 
 	//Bullet_Draw();
 
+	Camera_SetMatrix(view, proj);//必要
+	Stage01_Draw();
+	Item_Draw();
+
 
 	//////////////////////////////////////////
 	//ビルボード描くとかくついたり、処理落ちするようになっちゃったかも
@@ -477,7 +481,7 @@ void StageSimpleManager_Draw()
 	DirectX::XMFLOAT4X4 viewF;
 	DirectX::XMStoreFloat4x4(&viewF, view);
 	Billboard_SetViewMatrix(viewF);
-	Billboard_Draw(g_testTex, { -3.0f,4.0f,0.0f }, 5.0f, 5.0f , { 0.0f,0.0f});
+	Billboard_Draw(g_testTex, { -3.0f,0.0f,0.0f }, 5.0f, 5.0f , { 0.0f,0.0f});
 	//BillboardAnim_Draw(g_animPlayId, { -3.0f,2.0f,0.0f }, { 5.0f, 5.0f }, { 0.0f,2.0f });
 	if (g_animBrickHitId >= 0 && !g_spinBreakBillboardPositions.empty())
 		 {
@@ -495,9 +499,7 @@ void StageSimpleManager_Draw()
 
 
 
-	Camera_SetMatrix(view, proj);//必要
-	Stage01_Draw();
-	Item_Draw();
+	
 }
 
 
