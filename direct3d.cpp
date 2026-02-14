@@ -338,7 +338,7 @@ void Direct3D_SetLightViewProjectionMatrix(const DirectX::XMMATRIX& matrix)
 
 	// 定数バッファ(VS)を描画パイプラインに設定
 	// 3D VS は b3 を使う
-    //g_pDeviceContext->VSSetConstantBuffers(3, 1, &g_pVSConstantBuffer3);
+    g_pDeviceContext->VSSetConstantBuffers(3, 1, &g_pVSConstantBuffer3);
 
 	// Field VS は b5 を使う（←これが重要）
 	g_pDeviceContext->VSSetConstantBuffers(5, 1, &g_pVSConstantBuffer3);
