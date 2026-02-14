@@ -24,7 +24,15 @@ struct PS_IN
 
 float4 main(PS_IN pi) : SV_TARGET
 {
-    float4 c = tex.Sample(samp, pi.uv) * pi.color * mulColor;
+    // Keep vertex color multiply for intended tinting, but avoid full black
+    // when input color is unexpectedly zeroed (e.g. VS/CSO mismatch).
+    float4 vtxColor = pi.color;
+    if (dot(abs(vtxColor), 1.0f.xxxx) < 1e-5f)
+    {
+        vtxColor = float4(1.0f, 1.0f, 1.0f, 1.0f);
+    }
+
+    float4 c = tex.Sample(samp, pi.uv) * vtxColor * mulColor;
 
     // Alpha cutout (for PNG etc.)
     clip(c.a - 0.1f);
