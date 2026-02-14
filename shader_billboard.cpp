@@ -185,10 +185,10 @@ void ShaderBillboard_SetUVParameter(const UVParameter& parameter)
 
 void ShaderBillboard_Begin()
 {
-    auto* ctx = Direct3D_GetContext();
-
     // ‘¼•`‰æ‚Å sampler state ‚ª·‚µ‘Ö‚¦‚ç‚ê‚é‚½‚ßABillboard •`‰æ’¼‘O‚ÉÄÝ’è‚·‚é
     Sampler_SetFilterAnisotropic();
+
+    auto* ctx = Direct3D_GetContext();
 
     ctx->VSSetShader(g_pVertexShader, nullptr, 0);
     ctx->PSSetShader(g_pPixelShader, nullptr, 0);

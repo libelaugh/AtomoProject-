@@ -184,7 +184,6 @@ static void Billboard_DrawInternal(
         // Skip invalid / not-loaded textures
         return;
     }
-
     ShaderBillboard_SetUVParameter(uv);
     ShaderBillboard_SetColor(color);
     ShaderBillboard_Begin();
