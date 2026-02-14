@@ -24,7 +24,7 @@ static ID3D11VertexShader* g_pVertexShader = nullptr;
 static ID3D11InputLayout*  g_pInputLayout  = nullptr;
 static ID3D11PixelShader*  g_pPixelShader  = nullptr;
 
-// VS: b0 world, b1 view, b2 projection, b3 uv
+// VS: b0 world, b1 view, b2 projection, b6 uv
 static ID3D11Buffer* g_pVSConstantBufferWorld = nullptr;
 static ID3D11Buffer* g_pVSConstantBufferView  = nullptr;
 static ID3D11Buffer* g_pVSConstantBufferProj  = nullptr;
@@ -191,13 +191,10 @@ void ShaderBillboard_Begin()
     ctx->PSSetShader(g_pPixelShader, nullptr, 0);
     ctx->IASetInputLayout(g_pInputLayout);
 
-    ID3D11Buffer* vsCBs[4] = {
-        g_pVSConstantBufferWorld,
-        g_pVSConstantBufferView,
-        g_pVSConstantBufferProj,
-        g_pVSConstantBufferUV,
-    };
-    ctx->VSSetConstantBuffers(0, 4, vsCBs);
+    ctx->VSSetConstantBuffers(0, 1, &g_pVSConstantBufferWorld);
+    ctx->VSSetConstantBuffers(1, 1, &g_pVSConstantBufferView);
+    ctx->VSSetConstantBuffers(2, 1, &g_pVSConstantBufferProj);
+    ctx->VSSetConstantBuffers(6, 1, &g_pVSConstantBufferUV);
 
     ctx->PSSetConstantBuffers(0, 1, &g_pPSConstantBufferColor);
 }
