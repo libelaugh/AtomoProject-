@@ -161,9 +161,9 @@ void EmitterManager::Finalize()
 
 void EmitterManager::SpawnBurst(const XMFLOAT3& position, int emitCount, const XMFLOAT4& color)
 {
-        m_emitters.emplace_back(position, 
-            emitCount, 
-            1.0f, 
+    m_emitters.emplace_back(position,
+        emitCount,
+        1.0f,
         5.0f,
         0.35f,
         0.9f,
@@ -171,7 +171,22 @@ void EmitterManager::SpawnBurst(const XMFLOAT3& position, int emitCount, const X
         0.05f,
         -9.8f,
         color,
-            Emitter::Pattern::Dome);
+        Emitter::Pattern::Dome);
+}
+
+void EmitterManager::SpawnRingBurst(const XMFLOAT3& position, int emitCount, const XMFLOAT4& color)
+{
+    m_emitters.emplace_back(position,
+        emitCount,
+        2.5f,
+        6.5f,
+        0.45f,
+        1.1f,
+        0.45f,
+        0.05f,
+        -3.0f,
+        color,
+        Emitter::Pattern::Ring);
 }
 
 void EmitterManager::Update(float deltaTime)

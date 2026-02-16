@@ -47,6 +47,7 @@ public:
         float startScale,
         float endScale,
         float gravity,
+        const DirectX::XMFLOAT4& color = { 1.0f, 1.0f, 1.0f, 1.0f },
         Pattern pattern = Pattern::Dome);
 
     void Update(float deltaTime);
