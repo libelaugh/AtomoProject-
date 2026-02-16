@@ -20,10 +20,12 @@ void Firework::Launch(const XMFLOAT3& startPosition)
 {
     Shell shell;
     shell.position = startPosition;
-    shell.velocity = { 0.0f, 14.0f, 0.0f };
-    shell.fuse = 1.1f;
+    shell.velocity = { 0.0f, 17.0f, 0.0f };
+    shell.fuse = 1.35f;
+    shell.thrustTime = 0.55f;
+    shell.thrustAcceleration = 23.0f;
     shell.trailTimer = 0.0f;
-    shell.burstCount = 44;
+    shell.burstCount = 54;
     m_shells.push_back(shell);
 }
 
@@ -35,6 +37,12 @@ void Firework::Update(float deltaTime)
     for (auto& shell : m_shells)
     {
         shell.fuse -= deltaTime;
+
+        if (shell.thrustTime > 0.0f)
+        {
+            shell.velocity.y += shell.thrustAcceleration * deltaTime;
+            shell.thrustTime -= deltaTime;
+        }
 
         shell.velocity.y += kGravity * deltaTime;
 
@@ -54,7 +62,8 @@ void Firework::Update(float deltaTime)
     {
         if (shell.fuse <= 0.0f)
         {
-            m_emitterManager.SpawnBurst(shell.position, shell.burstCount);
+            m_emitterManager.SpawnRingBurst(shell.position, shell.burstCount);
+            m_emitterManager.SpawnBurst(shell.position, shell.burstCount / 3);
         }
     }
 

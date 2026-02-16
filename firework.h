@@ -22,6 +22,8 @@ private:
         DirectX::XMFLOAT3 position{};
         DirectX::XMFLOAT3 velocity{};
         float fuse = 1.0f;
+        float thrustTime = 0.0f;
+        float thrustAcceleration = 0.0f;
         float trailTimer = 0.0f;
         int burstCount = 40;
     };
