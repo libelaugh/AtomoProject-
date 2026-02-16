@@ -37,6 +37,7 @@
 #include"sky.h"
 #include "goal.h"
 #include "particle_emitter.h"
+#include"firework.h"
 #include"Audio.h"
 #include <vector>
 #include <type_traits>
@@ -76,6 +77,7 @@ static const char* g_stageJsonPath = "stage_simple.json";
 static GoalState g_goalSimple = GoalState::Active;
 
 static EmitterManager g_emitterManager;
+static Firework g_firework;
 
 static void StageSimpleManager_SetStageInfo(const StageInfo& info)
 {
@@ -187,7 +189,7 @@ const char* StageSimpleManager_GetStageJsonPath()
 	return g_stageJsonPath;
 }
 
-void StageSimpleManager_AddSpinBreakBillboard(const DirectX::XMFLOAT3& position)
+void StageSimpleManager_BreakBrickBlock(const DirectX::XMFLOAT3& position)
 {
 	if (g_animBrickHitId >= 0) {
 		if (g_playAnimBrickId >= 0) {
@@ -197,6 +199,7 @@ void StageSimpleManager_AddSpinBreakBillboard(const DirectX::XMFLOAT3& position)
 	}
 	g_spinBreakBillboardPositions.push_back({ position, 0.0 });
 	g_emitterManager.SpawnBurst(position, 28,{1.0f,0.0f,0.0f,1.0f});
+	g_firework.Launch(position, { 1.0f,0.0f,0.0f,1.0f });
 }
 
 void StageSimpleManager_Initialize(const StageInfo& info)
@@ -230,6 +233,7 @@ void StageSimpleManager_Initialize(const StageInfo& info)
 
 	g_testTex = Texture_Load(L"title.png");
 	g_emitterManager.Initialize(L"effect000.jpg");
+	g_firework.Initialize(L"effect000.jpg");
 	LightCamera_Initialize({ -1.0f,-1.0f,1.0f }, { 0.0f,20.0f,-0.0f });
 
 
@@ -276,6 +280,7 @@ void StageSimpleManager_Finalize()
 	Billboard_Finalize();
 
 	g_emitterManager.Finalize();
+	g_firework.Finalize();
 
 	Stage01_Finalize();
 	Item_Finalize();
@@ -359,6 +364,7 @@ void StageSimpleManager_Update(float elapsedTime)
 
 	SpriteAnim_Update(elapsedTime);
 	g_emitterManager.Update(elapsedTime);
+	g_firework.Update(elapsedTime);
 
 	for (auto& billboard : g_spinBreakBillboardPositions)
 		 {
@@ -509,6 +515,7 @@ void StageSimpleManager_Draw()
 		 }
 
 	g_emitterManager.Draw();
+	g_firework.Draw();
 
 	if (g_isDebug) {
 		Camera_DebugDraw();

@@ -12,7 +12,8 @@ public:
     void Initialize(const wchar_t* particleTexturePath);
     void Finalize();
 
-    void Launch(const DirectX::XMFLOAT3& startPosition);
+    void Launch(const DirectX::XMFLOAT3& startPosition,
+        const DirectX::XMFLOAT4& color = { 1.0f, 1.0f, 1.0f, 1.0f });
     void Update(float deltaTime);
     void Draw() const;
 
@@ -26,6 +27,7 @@ private:
         float thrustAcceleration = 0.0f;
         float trailTimer = 0.0f;
         int burstCount = 40;
+        DirectX::XMFLOAT4 color{ 1.0f, 1.0f, 1.0f, 1.0f };
     };
 
     EmitterManager m_emitterManager;
