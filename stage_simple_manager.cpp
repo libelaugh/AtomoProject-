@@ -36,6 +36,7 @@
 #include"item.h"
 #include"sky.h"
 #include "goal.h"
+#include "particle_emitter.h"
 #include"Audio.h"
 #include <vector>
 #include <type_traits>
@@ -73,6 +74,8 @@ static DirectX::XMFLOAT3 g_spawnFront = { 0.0f, 0.0f, 1.0f };
 static const char* g_stageJsonPath = "stage_simple.json";
 
 static GoalState g_goalSimple = GoalState::Active;
+
+static EmitterManager g_emitterManager;
 
 static void StageSimpleManager_SetStageInfo(const StageInfo& info)
 {
@@ -186,7 +189,14 @@ const char* StageSimpleManager_GetStageJsonPath()
 
 void StageSimpleManager_AddSpinBreakBillboard(const DirectX::XMFLOAT3& position)
 {
+	if (g_animBrickHitId >= 0) {
+		if (g_playAnimBrickId >= 0) {
+			SpriteAnim_DestroyPlayer(g_playAnimBrickId);
+		}
+		g_playAnimBrickId = SpriteAnim_CreatePlayer(g_animBrickHitId);
+	}
 	g_spinBreakBillboardPositions.push_back({ position, 0.0 });
+	g_emitterManager.SpawnBurst(position, 28,{1.0f,0.0f,0.0f,1.0f});
 }
 
 void StageSimpleManager_Initialize(const StageInfo& info)
@@ -203,7 +213,7 @@ void StageSimpleManager_Initialize(const StageInfo& info)
 	Billboard_Initialize();
 	//BulletHitEffect_Initialize();
 	g_brickHitTex = Texture_Load(L"brickHitEffect.png");
-	g_animBrickHitId = SpriteAnim_RegisterPattern(g_brickHitTex, 10, 10, 0.1, { 140,200 }, { 0,0 }, true);
+	g_animBrickHitId = SpriteAnim_RegisterPattern(g_brickHitTex, 10, 10, 0.15, { 120,120 }, { 0,0 }, false);
 	g_playAnimBrickId = SpriteAnim_CreatePlayer(g_animBrickHitId);
 	if (g_brickHitTex < 0)
 		 {
@@ -211,7 +221,7 @@ void StageSimpleManager_Initialize(const StageInfo& info)
 		}
 	if (g_animBrickHitId < 0 && g_brickHitTex >= 0)
 		 {
-		g_animBrickHitId = SpriteAnim_RegisterPattern(g_brickHitTex, 10, 10, 0.1, { 120,120 }, { 0,0 }, true);
+		g_animBrickHitId = SpriteAnim_RegisterPattern(g_brickHitTex, 10, 10, 0.15, { 120,120 }, { 0,0 }, false);
 		}
 	if (g_playAnimBrickId < 0 && g_animBrickHitId >= 0)
 		 {
@@ -219,6 +229,7 @@ void StageSimpleManager_Initialize(const StageInfo& info)
 		}
 
 	g_testTex = Texture_Load(L"title.png");
+	g_emitterManager.Initialize(L"effect000.jpg");
 	LightCamera_Initialize({ -1.0f,-1.0f,1.0f }, { 0.0f,20.0f,-0.0f });
 
 
@@ -264,7 +275,7 @@ void StageSimpleManager_Finalize()
 	Camera_Finalize();
 	Billboard_Finalize();
 
-
+	g_emitterManager.Finalize();
 
 	Stage01_Finalize();
 	Item_Finalize();
@@ -347,7 +358,8 @@ void StageSimpleManager_Update(float elapsedTime)
 
 
 	SpriteAnim_Update(elapsedTime);
-	//////////怪しい
+	g_emitterManager.Update(elapsedTime);
+
 	for (auto& billboard : g_spinBreakBillboardPositions)
 		 {
 		billboard.elapsed += elapsedTime;
@@ -474,7 +486,12 @@ void StageSimpleManager_Draw()
 
 
 	//////////////////////////////////////////
-	//ビルボード描くとかくついたり、処理落ちするようになっちゃったかも
+	//ビルボード描くとかくついたり、処理落ちするようになっちゃった
+	// 
+	// 2/15　出力で大量のワーニングログが出てたのが問題だった。
+	// cbuffer VS_CONSTANT_BUFFER3 : register(b3)がshader3dとshader_billboard両方で使ってたが、shader_billboardの方のバイト
+	// サイズが小さく、揃って無いってワーニングログが大量に出て処理落ちしてた。D3D11 WARNINGとかログ出力は重い処理だからね。
+	// 同一数字のスロットのサイズは揃えよう！！！！
 	//////////////////////////////////////////
 	ShaderBillboard_SetViewMatrix(view);
 	ShaderBillboard_SetProjectionMatrix(proj);
@@ -490,6 +507,8 @@ void StageSimpleManager_Draw()
 			BillboardAnim_Draw(g_animBrickHitId, billboard.position, { 5.0f, 5.0f }, { 0.0f,0.0f });
 			}
 		 }
+
+	g_emitterManager.Draw();
 
 	if (g_isDebug) {
 		Camera_DebugDraw();
