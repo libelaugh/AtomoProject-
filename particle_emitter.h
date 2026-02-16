@@ -12,7 +12,8 @@ public:
         float lifeSeconds,
         float startScale,
         float endScale,
-        float gravity);
+        float gravity,
+        const DirectX::XMFLOAT4& color);
 
     bool Update(float deltaTime);
     void Draw(int texId) const;
@@ -25,11 +26,18 @@ private:
     float m_startScale = 1.0f;
     float m_endScale = 0.0f;
     float m_gravity = 0.0f;
+    DirectX::XMFLOAT4 m_color{ 1.0f, 1.0f, 1.0f, 1.0f };
 };
 
 class Emitter
 {
 public:
+    enum class Pattern
+    {
+        Dome,
+        Ring,
+    };
+
     Emitter(const DirectX::XMFLOAT3& origin,
         int emitCount,
         float speedMin,
@@ -38,7 +46,8 @@ public:
         float lifeMax,
         float startScale,
         float endScale,
-        float gravity);
+        float gravity,
+        Pattern pattern = Pattern::Dome);
 
     void Update(float deltaTime);
     void Draw(int texId) const;
@@ -58,6 +67,8 @@ private:
     float m_startScale = 1.0f;
     float m_endScale = 0.0f;
     float m_gravity = 0.0f;
+    DirectX::XMFLOAT4 m_color{ 1.0f, 1.0f, 1.0f, 1.0f };
+    Pattern m_pattern = Pattern::Dome;
 };
 
 class EmitterManager
@@ -66,7 +77,11 @@ public:
     void Initialize(const wchar_t* particleTexturePath);
     void Finalize();
 
-    void SpawnBurst(const DirectX::XMFLOAT3& position, int emitCount = 24);
+    void SpawnBurst(const DirectX::XMFLOAT3& position,
+        int emitCount = 24,
+        const DirectX::XMFLOAT4& color = { 1.0f, 1.0f, 1.0f, 1.0f });
+    void SpawnRingBurst(const DirectX::XMFLOAT3& position, int emitCount = 40,
+        const DirectX::XMFLOAT4 & color = { 1.0f, 1.0f, 1.0f, 1.0f });
     void Update(float deltaTime);
     void Draw() const;
 
